@@ -20,9 +20,7 @@ func main(){
 	//Eratosthenes(&d)
 	
 	Atokin1(&d)
-	Atokin2(&d)
-	Atokin3(&d)
-	Atokin4(&d)	
+	Atokin4(&d)
 	
 	fmt.Println(time.Now().Sub(start).Seconds())
 	PrintSieve(&d, false)
@@ -81,11 +79,6 @@ func Atokin1(d SieveStoreInterface){
 			}
 		}
 	}
-}
-
-func Atokin2(d SieveStoreInterface){
-	N := d.Length()
-	sqrtN := int(math.Sqrt(float64(N)))
 	for z:=2; z <=4; z+=2 {
 		for y:=z; y<=sqrtN; y+=6 {
 			for x:=1;; x+=2 {
@@ -104,11 +97,6 @@ func Atokin2(d SieveStoreInterface){
 			}
 		}
 	}
-}
-
-func Atokin3(d SieveStoreInterface){
-	N := d.Length()
-	sqrtN := int(math.Sqrt(float64(N)))
 	for y:=3; y<=sqrtN; y+=6 {
 		for z:=1; z <= 2; z++ {
 			for x:=z;; x+=3 {
@@ -125,7 +113,7 @@ func Atokin3(d SieveStoreInterface){
 func Atokin4(d SieveStoreInterface){
 	N := d.Length()
 	sqrtN := int(math.Sqrt(float64(N)))
-	for n := 5; n<sqrtN; n++{
+	for n := 5; n<=sqrtN; n++{
 		if d.Get(n){
 			for k:=n*n; k<N; k+=n*n{
 				d.Set(k, false)
