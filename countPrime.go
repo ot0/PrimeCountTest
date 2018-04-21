@@ -9,14 +9,18 @@ import (
 
 func main() {
 	fmt.Println("Hello World!")
-	//fmt.Println(prime.CountAtokinMulti(100))
-	
+	/*
+	stop := 1000*1000*1000*1000*10
+	start := time.Now()
+	count := stop - prime.CountNonePrimeMulti(stop)
+	fmt.Println(count, time.Now().Sub(start).Seconds())
+	*/
 	AllTest()
 }
 
 func AllTest(){
 	var stop int
-
+	
 	fmt.Println("Eratosthenes, normal memory")
 	stop = 1
 	for i := 1; i <= 9; i++ {
@@ -104,14 +108,27 @@ func AllTest(){
 		fmt.Println(i, count, time.Now().Sub(start).Seconds())
 	}
 
-	fmt.Println("Count None Prime")
+	fmt.Println("Count Non-Prime")
 	stop = 1
 	for i := 1; i <= 11; i++ {
 		stop *= 10
 		start := time.Now()
 
-		count := stop - prime.CountNonePrime(stop)
+		count := stop - prime.CountNonPrime(stop)
 
 		fmt.Println(i, count, time.Now().Sub(start).Seconds())
+
+	}
+	
+	fmt.Println("Count Non-Prime Multiprocess")
+	stop = 1
+	for i := 1; i <= 12; i++ {
+		stop *= 10
+		start := time.Now()
+
+		count := stop - prime.CountNonPrimeMulti(stop)
+
+		fmt.Println(i, count, time.Now().Sub(start).Seconds())
+
 	}
 }

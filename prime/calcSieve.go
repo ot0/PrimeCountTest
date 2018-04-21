@@ -120,8 +120,8 @@ func CountPrimeMulti(stop int) int {
 		ch <- c
 	}
 	for i := d0.Stop(); i < stop; i += sstop {
-		go Calc(i)
 		count += <-ch
+		go Calc(i)
 	}
 	for i := 0; i < parallel; i++ {
 		count += <-ch
@@ -171,8 +171,8 @@ func CountAtokinMulti(stop int) int {
 		ch <- c
 	}
 	for i := d0.Stop(); i < stop; i += sstop {
-		go Calc(i)
 		count += <-ch
+		go Calc(i)
 	}
 	for i := 0; i < parallel; i++ {
 		count += <-ch
@@ -243,10 +243,8 @@ func CountAtokinWheelMulti(stop int) int {
 		//fmt.Println(d.Start(), c)
 	}
 	for i := step; i < stop; i += step {
-
-		go Calc(i)
-
 		sum += <-ch
+		go Calc(i)
 		//fmt.Println("total:", sum)
 	}
 
