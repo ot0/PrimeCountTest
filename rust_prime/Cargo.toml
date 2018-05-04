@@ -1,6 +1,6 @@
 [package]
 name = "rust_prime"
 version = "0.1.0"
-authors = ["liveuser"]
+authors = ["ot0 <ot0a6u@gmail.com>"]
 
 [dependencies]

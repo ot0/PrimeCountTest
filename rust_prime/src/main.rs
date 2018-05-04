@@ -1,33 +1,105 @@
 use std::vec::Vec;
 use std::time::Instant;
+use std::thread;
+use std::sync::{mpsc, Arc};
 
 fn main() {
     println!("Hello, world!");
 
+    let stop: usize = 1000*1000*1000*1;
+
     let start = Instant::now();
-
-    const BUF_SIZE: usize = 1000*1000*100 - 1;
-    let mut store = SieveStore{
-        s: 2,
-        x: vec![true; BUF_SIZE]
-    };
-    
-    let mut count = 0;
-    for i in store.start()..store.stop(){
-        if store.get(i) {
-            let mut j = i * i;
-            while j < store.stop() {
-                store.set(j, false);
-                j += i;
-            }
-            count +=1;
-            //print!("{},", i)
-        }
-    }
-    //println!("");
-
+    let count = eratosthenes_single(stop);
     let end = start.elapsed();
     println!("{}, {:?}", count, end);
+
+    let start = Instant::now();
+    let count = eratosthenes_multi(stop);
+    let end = start.elapsed();
+    println!("{}, {:?}", count, end);
+
+}
+
+fn eratosthenes_single(stop: usize) -> usize {
+    let mut store = SieveStore::new(2, stop -1);
+    eratosthenes(&mut store).iter().count()
+}
+
+fn eratosthenes_multi(stop: usize) -> usize {
+    let process = 4;
+    let step = isqrt(stop);
+
+    let mut ss0 = Arc::new(SieveStore::new(2, step));
+    
+    
+    eratosthenes(Arc::get_mut(&mut ss0).unwrap());
+    //eratosthenes(&mut *ss0);
+    //ss0.iter().for_each(|x| print!("{},",x));
+
+    let mut count = ss0.iter().count();
+    
+    let mut start = ss0.stop();
+
+    let (tx, rx) = mpsc::channel();
+
+    for _i in 0..process {
+        let tx = tx.clone();
+        tx.send(0).unwrap();
+    }
+
+    loop{
+        count += rx.recv().unwrap();
+
+        let mut ss = SieveStore::new(start, step);
+        let tx = tx.clone();
+        let ss0 = ss0.clone();
+        start += step;
+        if start < stop {
+            thread::spawn(move ||{
+                eratosthenes_other(&mut ss, &(*ss0));
+                tx.send(ss.iter().count()).unwrap();
+            });
+        }else{
+            thread::spawn(move ||{
+                eratosthenes_other(&mut ss, &(*ss0));
+                tx.send(ss.iter().filter(|x| *x < stop).count()).unwrap();
+            });
+            break;
+        }
+    }
+    for _i in 0..process {
+        count += rx.recv().unwrap();
+    }
+    //println!("");
+    count
+}
+
+fn isqrt(i: usize) -> usize {
+    (i as f64).sqrt() as usize
+}
+
+fn eratosthenes(ps: &mut PrimeStore) ->&mut PrimeStore{
+    for i in ps.start()..ps.stop(){
+        if ps.get(i) {
+            let mut j = i * i;
+            while j < ps.stop() {
+                ps.set(j, false);
+                j += i;
+            }
+        }
+    }   
+    ps
+}
+
+fn eratosthenes_other(ps: &mut PrimeStore, ps0: &PrimeStore){
+    for n in ps0.iter() {
+        let s = (ps.start()-1) / n + 1;
+        let mut i = n * s;
+        while i < ps.stop(){
+            ps.set(i, false);
+            i += n;
+        }
+    }
 }
 
 trait PrimeStore {
@@ -36,11 +108,44 @@ trait PrimeStore {
     fn toggle(&mut self, usize);
     fn start(&self) -> usize;
     fn stop(&self) -> usize;
+    fn iter(&self) -> SieveStoreIter;
 }
 
 struct SieveStore {
     s: usize,
-    x: Vec<bool>
+    x: Vec<bool>,
+}
+
+struct SieveStoreIter<'a>{
+    ss: &'a PrimeStore,
+    i: usize
+}
+
+impl SieveStore{
+    fn new(start:usize, step:usize) -> SieveStore{
+        SieveStore{
+            s: start,
+            x: vec![true; step],
+        } 
+    }
+}
+
+impl<'a> Iterator for SieveStoreIter<'a>{
+    type Item = usize;
+    fn next(&mut self) -> Option<usize> {
+        loop {
+            if self.i >= self.ss.stop() {
+                return None;
+            }
+            if self.ss.get(self.i) {
+                break
+            }
+            self.i += 1;
+        }
+        let n = self.i;
+        self.i += 1;
+        Some(n)
+    }
 }
 
 impl PrimeStore for SieveStore {
@@ -58,5 +163,11 @@ impl PrimeStore for SieveStore {
     }
     fn stop(&self) -> usize {
         self.s + self.x.len()
+    }
+    fn iter(&self) -> SieveStoreIter {
+        SieveStoreIter{
+            ss: self,
+            i: self.start()
+        }
     }
 }

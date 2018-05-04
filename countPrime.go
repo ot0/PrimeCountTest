@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"time"
 
-	"./prime"
+	"github.com/ot0/PrimeCountTest/prime"
 )
 
 func main() {
 	fmt.Println("Hello World!")
 
-	stop := 1000 * 1000 * 1000 * 100
+	stop := 1000 * 1000 * 1000 * 10
 	start := time.Now()
-	count := stop - prime.CountNonPrimeMulti(stop)
+	count := prime.CountPrimeMulti(stop)
+
 	fmt.Println(count, time.Now().Sub(start).Seconds())
 
 	//AllTest()
