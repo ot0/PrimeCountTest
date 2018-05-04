@@ -23,7 +23,7 @@ func CountNonPrime(stop int) int {
 }
 
 func CountNonPrimeMulti(stop int) int {
-	parallel := 4
+	parallel := 8
 	ch := make(chan int, parallel)
 	for i := 0; i < parallel; i++ {
 		ch <- 0

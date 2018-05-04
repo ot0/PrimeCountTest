@@ -9,18 +9,18 @@ import (
 
 func main() {
 	fmt.Println("Hello World!")
-	/*
-	stop := 1000*1000*1000*1000*10
+
+	stop := 1000 * 1000 * 1000 * 100
 	start := time.Now()
-	count := stop - prime.CountNonePrimeMulti(stop)
+	count := stop - prime.CountNonPrimeMulti(stop)
 	fmt.Println(count, time.Now().Sub(start).Seconds())
-	*/
-	AllTest()
+
+	//AllTest()
 }
 
-func AllTest(){
+func AllTest() {
 	var stop int
-	
+
 	fmt.Println("Eratosthenes, normal memory")
 	stop = 1
 	for i := 1; i <= 9; i++ {
@@ -119,7 +119,7 @@ func AllTest(){
 		fmt.Println(i, count, time.Now().Sub(start).Seconds())
 
 	}
-	
+
 	fmt.Println("Count Non-Prime Multiprocess")
 	stop = 1
 	for i := 1; i <= 12; i++ {
