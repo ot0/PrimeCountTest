@@ -47,25 +47,23 @@ fn eratosthenes_multi(stop: usize) -> usize {
         tx.send(0).unwrap();
     }
 
-    loop{
+    let mut is_continue = true;
+    while is_continue{
         count += rx.recv().unwrap();
-
-        let mut ss = SieveStore::new(start, step);
+        let tmp_stop = start + step;       
+        let mut ss = if tmp_stop < stop {
+            SieveStore::new(start, step)
+        }else{
+            is_continue = false;
+            SieveStore::new(start, stop - start + 1)
+        };
         let tx = tx.clone();
         let ss0 = ss0.clone();
-        start += step;
-        if start < stop {
-            thread::spawn(move ||{
-                eratosthenes_other(&mut ss, &(*ss0));
-                tx.send(ss.iter().count()).unwrap();
-            });
-        }else{
-            thread::spawn(move ||{
-                eratosthenes_other(&mut ss, &(*ss0));
-                tx.send(ss.iter().filter(|x| *x < stop).count()).unwrap();
-            });
-            break;
-        }
+        thread::spawn(move ||{
+            eratosthenes_other(&mut ss, &(*ss0));
+            tx.send(ss.iter().count()).unwrap();
+        });
+        start = tmp_stop;
     }
     for _i in 0..process {
         count += rx.recv().unwrap();
